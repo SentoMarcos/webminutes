@@ -7,7 +7,17 @@
   function msToHMS(ms){const s=Math.floor(ms/1000);const h=Math.floor(s/3600);const m=Math.floor((s%3600)/60);const sec=s%60;const p=[];if(h>0)p.push(`${h}h`);if(m>0)p.push(`${m}m`);p.push(`${sec}s`);return p.join(' ')}
   function shortLabelFromUrl(url,max=56){try{const u=new URL(url);const host=u.hostname.replace(/^www\./,'');let path=u.pathname.replace(/\/$/,'');if(path.length>28)path=path.slice(0,25)+'…';const label=path&&path!=='/'?`${host}${path}`:host;return label.length>max?label.slice(0,max-1)+'…':label}catch{return url.length>max?url.slice(0,max-1)+'…':url}}
   function hostnameFromUrl(url){try{return new URL(url).hostname.replace(/^www\./,'')}catch{return ''}}
-  const SOCIAL_APPS={"youtube.com":"YouTube","m.youtube.com":"YouTube","youtu.be":"YouTube","twitter.com":"X","x.com":"X","instagram.com":"Instagram","facebook.com":"Facebook","m.facebook.com":"Facebook","tiktok.com":"TikTok","reddit.com":"Reddit","linkedin.com":"LinkedIn","web.whatsapp.com":"WhatsApp","web.telegram.org":"Telegram"};
+  const SOCIAL_APPS={
+    "youtube.com":"YouTube","m.youtube.com":"YouTube","youtu.be":"YouTube",
+    "twitter.com":"X","x.com":"X","t.co":"X",
+    "instagram.com":"Instagram",
+    "facebook.com":"Facebook","m.facebook.com":"Facebook","fb.watch":"Facebook",
+    "tiktok.com":"TikTok","vm.tiktok.com":"TikTok",
+    "reddit.com":"Reddit","old.reddit.com":"Reddit",
+    "linkedin.com":"LinkedIn",
+    "web.whatsapp.com":"WhatsApp","wa.me":"WhatsApp",
+    "web.telegram.org":"Telegram","t.me":"Telegram"
+  };
   function appNameFromHost(host){if(!host)return 'Otros';if(SOCIAL_APPS[host])return SOCIAL_APPS[host];for(const key of Object.keys(SOCIAL_APPS)){if(host===key||host.endsWith('.'+key))return SOCIAL_APPS[key]}return host}
   function iconUrlFor(app,sampleHost){const APP_HOST={"YouTube":"youtube.com","X":"x.com","Instagram":"instagram.com","Facebook":"facebook.com","TikTok":"tiktok.com","Reddit":"reddit.com","LinkedIn":"linkedin.com","WhatsApp":"web.whatsapp.com","Telegram":"web.telegram.org"};const host=APP_HOST[app]||sampleHost||'example.com';return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=32`}
 
