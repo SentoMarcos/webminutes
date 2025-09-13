@@ -3,7 +3,7 @@
   "name": "WebMinutes",
   "description": "Descubre cuánto tiempo pasas en redes sociales y otras webs. Todo local, sin cuentas.",
   "version": "0.1.0",
-  "permissions": ["tabs", "storage", "idle", "windows", "scripting", "activeTab"],
+  "permissions": ["tabs", "storage", "idle", "windows", "scripting", "activeTab", "alarms"],
   "background": { "service_worker": "background.js" },
   "action": { "default_title": "WebMinutes", "default_popup": "popup.html" },
   "icons": {

@@ -20,26 +20,32 @@
     const data=await chrome.storage.local.get([key]);
     const map=data[key]||{};
 
-    document.getElementById('totalToday').textContent=msToHMS(Object.values(map).reduce((a,b)=>a+b,0));
-
-    // Apps
-    const appTotals={};const appBreakdown={};
-    Object.entries(map).forEach(([url,ms])=>{const host=hostnameFromUrl(url);const app=appNameFromHost(host);appTotals[app]=(appTotals[app]||0)+ms;(appBreakdown[app]||(appBreakdown[app]={}))[url]=(appBreakdown[app][url]||0)+ms});
-    const appsList=document.getElementById('appsList');appsList.innerHTML='';
-    Object.entries(appTotals).sort((a,b)=>b[1]-a[1]).slice(0,4).forEach(([app,ms])=>{const li=document.createElement('li');li.style.display='flex';li.style.alignItems='center';const anyUrl=Object.keys(appBreakdown[app])[0];const img=document.createElement('img');img.src=iconUrlFor(app,hostnameFromUrl(anyUrl));img.alt=app;img.width=18;img.height=18;img.style.marginRight='6px';img.referrerPolicy='no-referrer';const spanApp=document.createElement('span');spanApp.textContent=app;const time=document.createElement('span');time.className='time';time.textContent=` (${msToHMS(ms)})`;li.appendChild(img);li.appendChild(spanApp);li.appendChild(time);appsList.appendChild(li)});
-
-    // Top páginas -> donut + lista (Chart.js si está disponible; si no, SVG nativo)
-    const entries=Object.entries(map).filter(([u])=>!/^chrome-extension:\/\//.test(u)).sort((a,b)=>b[1]-a[1]);
-  const legend=document.getElementById('pieLegend');
-  const tooltip=document.getElementById('pieTooltip');
+    // Agregar por APP/SITIO en lugar de por URL, para que YouTube se agrupe correctamente
+    const rawEntries = Object.entries(map).filter(([u])=>/^(https?:)/i.test(u));
+    const byApp = new Map(); // appName -> { ms, host }
+    for(const [url, ms] of rawEntries){
+      const host = hostnameFromUrl(url);
+      const app = appNameFromHost(host);
+      const cur = byApp.get(app) || { ms: 0, host: host };
+      cur.ms += ms;
+      // Mantén un host de muestra utilizable (prioriza hosts que no sean subdominios raros)
+      if(!cur.host || /^(www\.)?youtube\.com$/.test(host)) cur.host = host;
+      byApp.set(app, cur);
+    }
+    const entries = Array.from(byApp.entries()) // [app, {ms, host}]
+      .sort((a,b)=>b[1].ms - a[1].ms)
+      .map(([app, obj])=>({ label: app, ms: obj.ms, app, host: obj.host }));
+    const legend=document.getElementById('pieLegend');
+    const tooltip=document.getElementById('pieTooltip');
     legend.innerHTML='';
-    const colors=['#60a5fa','#34d399','#f87171','#fbbf24','#a78bfa','#f472b6','#22d3ee'];
+  // Paleta alineada con la ventana (verdes/lima + acentos complementarios sutiles)
+  const colors=['#a3e635','#84cc16','#22c55e','#38bdf8','#f59e0b','#f97316','#eab308'];
     const topN=6;
-    const parts=entries.slice(0,topN);
-    const rest=entries.slice(topN);
-    const total=entries.reduce((a,[,ms])=>a+ms,0)||1;
-    const other=rest.reduce((a,[,ms])=>a+ms,0);
-    if(other>0) parts.push(['Otros',other]);
+  const parts=entries.slice(0,topN);
+  const rest=entries.slice(topN);
+  const total=entries.reduce((a, it)=>a+it.ms,0)||1;
+  const other=rest.reduce((a, it)=>a+it.ms,0);
+  if(other>0) parts.push({ label:'Otros', ms: other, app:'Otros', host:'' });
 
   const useChart = USE_CHARTJS && typeof window.Chart !== 'undefined' && document.getElementById('pie') instanceof HTMLCanvasElement;
   if(useChart){
@@ -49,8 +55,8 @@
       if(canvas.__wmChart){ canvas.__wmChart.destroy(); }
     // Ensure components are registered (Chart.js v3+/v4+ requirement)
     try { if (Chart.registerables) { Chart.register(...Chart.registerables); } } catch {}
-      const labels = parts.map(([uOrLabel])=> uOrLabel==='Otros'?'Otros':shortLabelFromUrl(uOrLabel,22));
-      const dataVals = parts.map(([,ms])=> Math.max(0, Math.round(ms/1000))); // seconds for stable animation
+  const labels = parts.map((it)=> it.label);
+  const dataVals = parts.map((it)=> Math.max(0, Math.round(it.ms/1000))); // seconds for stable animation
       const bg = parts.map((_,i)=> colors[i%colors.length]);
 
       // Subtle base ring underlay plugin
@@ -66,7 +72,7 @@
           // Draw a soft base ring that peaks through spacing
           ctx.beginPath();
           ctx.lineWidth = Math.max(6, (outerRadius-innerRadius) * 0.5);
-          ctx.strokeStyle = 'rgba(148,163,184,0.18)';
+          ctx.strokeStyle = 'rgba(163,230,53,0.18)';
           ctx.arc(x, y, (outerRadius+innerRadius)/2, 0, Math.PI*2);
           ctx.stroke();
           ctx.restore();
@@ -109,7 +115,7 @@
 
       // Helpers: center overlay + icons positioning from actual geometry
       const updateCenterOverlay = () => {
-        const meta = chart.getDatasetMeta(0);
+  const meta = chart.getDatasetMeta(0);
         const arc0 = meta && meta.data && meta.data[0];
         const centerWrap = document.querySelector('.chart-center');
         if(!arc0 || !centerWrap) return;
@@ -133,7 +139,7 @@
       };
 
       const updateIcons = () => {
-        const meta = chart.getDatasetMeta(0);
+  const meta = chart.getDatasetMeta(0);
         const arcs = meta && meta.data ? meta.data : [];
         const iconsLayer = document.getElementById('chartIcons');
         if(!iconsLayer) return;
@@ -153,13 +159,13 @@
           const cx = Math.cos(angle), sy = Math.sin(angle);
           let x = arc.x + cx * rMid;
           let y = arc.y + sy * rMid;
-          const [uOrLabel] = parts[i] || [];
-          const host = uOrLabel==='Otros'? '' : hostnameFromUrl(uOrLabel||'');
-          const fav = uOrLabel==='Otros'? '' : iconUrlFor('', host);
+          const item = parts[i];
+          const fav = item && item.app !== 'Otros' ? iconUrlFor(item.app, item.host) : '';
           const img = document.createElement('img');
           img.className = 'chart-icons__img';
-          img.alt = uOrLabel==='Otros' ? 'Otros' : host;
-          if(fav) img.src = fav;
+          img.alt = item ? item.label : '';
+          if(!fav) return; // no icon for 'Otros'
+          img.src = fav;
           // borde del color del segmento
           img.style.borderColor = colors[i%colors.length];
           img.referrerPolicy = 'no-referrer';
@@ -192,11 +198,10 @@
         const valEl = centerWrap?.querySelector('.center-value');
         const titleEl = centerWrap?.querySelector('.center-title');
         if(!valEl || !titleEl) return;
-        const [rawLabel, ms] = parts[index] || [];
-        if(!rawLabel) return;
-        const label = rawLabel==='Otros'? 'Otros' : appNameFromHost(hostnameFromUrl(rawLabel)) || shortLabelFromUrl(rawLabel, 18);
-        titleEl.textContent = label;
-        valEl.textContent = msToHMS(ms);
+        const item = parts[index];
+        if(!item) return;
+        titleEl.textContent = item.label;
+        valEl.textContent = msToHMS(item.ms);
       };
       const revertCenter = () => {
         const centerWrap = document.querySelector('.chart-center');
@@ -221,10 +226,9 @@
         const idx = p.index;
         if(idx !== hoverIndex){
           hoverIndex = idx;
-          const [rawLabel, ms] = parts[idx];
-          const label = rawLabel==='Otros'? 'Otros' : shortLabelFromUrl(rawLabel, 22);
-          const pct = Math.round(ms/total*100);
-          tooltip.textContent = `${label} • ${msToHMS(ms)} (${pct}%)`;
+          const it = parts[idx];
+          const pct = Math.round(it.ms/total*100);
+          tooltip.textContent = `${it.label} • ${msToHMS(it.ms)} (${pct}%)`;
           try{
             showSliceInCenter(idx);
             chart.setActiveElements([{datasetIndex:0, index: idx}]);
@@ -251,8 +255,6 @@
       console.warn('Chart.js no disponible: no se renderiza la gráfica');
     }
 
-    const list=document.getElementById('topList');list.innerHTML='';
-  entries.slice(0,4).forEach(([url,ms])=>{const li=document.createElement('li');li.style.display='flex';li.style.alignItems='center';const host=hostnameFromUrl(url);const fav=document.createElement('img');fav.src=iconUrlFor('',host);fav.alt=host;fav.width=16;fav.height=16;fav.style.marginRight='6px';fav.referrerPolicy='no-referrer';const a=document.createElement('a');a.href=url;a.textContent=shortLabelFromUrl(url);a.target='_blank';a.rel='noopener noreferrer';a.className='url';const time=document.createElement('span');time.className='time';time.textContent=` (${msToHMS(ms)})`;li.appendChild(fav);li.appendChild(a);li.appendChild(time);list.appendChild(li)});
 
   // Center overlay is sized from chart innerRadius; value set earlier
 
@@ -260,10 +262,22 @@
   }
 
   // Listeners
-  document.getElementById('btnExport').addEventListener('click',exportCsv);
-  document.getElementById('btnReset').addEventListener('click',resetToday);
-  document.getElementById('btnWindow').addEventListener('click',async()=>{try{await chrome.windows.create({url:chrome.runtime.getURL('popup.html'),type:'popup',width:420,height:560});window.close()}catch(e){console.error('No se pudo abrir la ventana flotante',e)}});
-  document.getElementById('btnOverlay').addEventListener('click',async()=>{try{const [tab]=await chrome.tabs.query({active:true,currentWindow:true});if(!tab?.id)return;await chrome.scripting.executeScript({target:{tabId:tab.id},func:()=>{const ID='wm-overlay-root';const root=document.getElementById(ID);if(root){root.remove();return{removed:true}}return{removed:false}}});await chrome.scripting.insertCSS({target:{tabId:tab.id},files:['overlay.css']});await chrome.scripting.executeScript({target:{tabId:tab.id},files:['overlay.js']});window.close()}catch(e){console.error('No se pudo inyectar el overlay',e)}});
+  document.getElementById('btnWindow').addEventListener('click',async()=>{try{await chrome.windows.create({url:chrome.runtime.getURL('src/popup/window.html'),type:'popup',width:820,height:660});window.close()}catch(e){console.error('No se pudo abrir la ventana flotante',e)}});
 
   loadToday();
+
+  // Live refresh: listen to storage changes for today's key and refresh lightweight
+  try{
+    chrome.storage.onChanged.addListener((changes, area)=>{
+      if(area !== 'local') return;
+      const key = todayKey();
+      if(changes[key]){
+        // debounce to avoid flooding
+        clearTimeout(window.__wmRefreshTimer);
+        window.__wmRefreshTimer = setTimeout(()=>{
+          loadToday();
+        }, 200);
+      }
+    });
+  }catch{}
 })();

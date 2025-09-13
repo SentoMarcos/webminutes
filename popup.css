@@ -2,19 +2,20 @@
    Paleta & tokens de diseño
 ======================= */
 :root {
-  --bg: #1e293b;          /* azul grisáceo más claro */
-  --card: #27364a;        /* gris-azul intermedio */
-  --text: #f1f5f9;        /* casi blanco */
-  --muted: #cbd5e1;       /* gris claro */
-  --accent: #3b82f6;      /* azul brillante */
-  --accent-2: #60a5fa;    /* azul claro */
+  /* Tema alineado con window: carbón + lima */
+  --bg: #181c23;
+  --card: #23272f;
+  --text: #f1f5f9;
+  --muted: #cbd5e1;
+  --accent: #a3e635;      /* lima */
+  --accent-2: #84cc16;    /* lima más oscura */
 
-  --border: #334155;
-  --border-strong: #475569;
+  --border: #2a3139;
+  --border-strong: #3a414d;
 
-  --radius: 18px;         /* más redondeado */
+  --radius: 18px;
   --radius-sm: 14px;
-  --shadow: 0 6px 18px rgba(0,0,0,.25);
+  --shadow: 0 4px 18px rgba(0,0,0,.18);
 
   --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
   --speed: .18s;
@@ -100,9 +101,9 @@ section > h2::after {
   mix-blend-mode: screen;
   animation: blob-float 16s ease-in-out infinite;
 }
-.chart .blob--1 { background: radial-gradient(60% 60% at 50% 50%, #ef4444 0%, rgba(239,68,68,0) 70%); animation-delay: 0s; }
-.chart .blob--2 { background: radial-gradient(60% 60% at 50% 50%, #8b5cf6 0%, rgba(139,92,246,0) 70%); animation-delay: -5s; }
-.chart .blob--3 { background: radial-gradient(60% 60% at 50% 50%, #22d3ee 0%, rgba(34,211,238,0) 70%); animation-delay: -10s; }
+.chart .blob--1 { background: radial-gradient(60% 60% at 50% 50%, #a3e635 0%, rgba(163,230,53,0) 70%); animation-delay: 0s; }
+.chart .blob--2 { background: radial-gradient(60% 60% at 50% 50%, #84cc16 0%, rgba(132,204,22,0) 70%); animation-delay: -5s; }
+.chart .blob--3 { background: radial-gradient(60% 60% at 50% 50%, #22c55e 0%, rgba(34,197,94,0) 70%); animation-delay: -10s; }
 
 @keyframes blob-float {
   0%   { transform: translate(0,0) scale(1); }
@@ -118,8 +119,8 @@ section > h2::after {
   width: clamp(120px, 38vmin, 180px); height: clamp(120px, 38vmin, 180px);
   border-radius: 50%;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: radial-gradient(60% 80% at 50% 40%, rgba(17,24,39,.55), rgba(17,24,39,.25));
-  border: 1px solid rgba(148,163,184,.25);
+  background: rgba(24,28,35,.72);
+  border: 1px solid rgba(148,163,184,.18);
   color: var(--text);
   text-align: center;
   pointer-events: none;
@@ -151,7 +152,7 @@ section > h2::after {
 
 .tooltip {
   position: fixed; z-index: 2147483647; pointer-events: none;
-  background: #0f172a; color: var(--text);
+  background: #23272f; color: var(--text);
   border: 1px solid var(--border);
   border-radius: 8px; padding: 6px 8px; font-size: 12px;
   box-shadow: var(--shadow);
@@ -178,7 +179,7 @@ section > h2::after {
   right: 10%;
   bottom: -30px;
   height: 60px;
-  background: radial-gradient(50% 100% at 50% 0%, rgba(96,165,250,.45), rgba(96,165,250,0));
+  background: radial-gradient(50% 100% at 50% 0%, rgba(163,230,53,.38), rgba(163,230,53,0));
   pointer-events: none;
   filter: blur(10px);
 }
@@ -296,7 +297,7 @@ button {
 }
 
 button:hover {
-  background: #334155;
+  background: #2b313a;
   border-color: var(--border-strong);
   transform: translateY(-1px);
 }
@@ -307,7 +308,7 @@ button:active {
 
 button.primary {
   border-color: var(--accent);
-  background: linear-gradient(180deg, rgba(59,130,246,.2), rgba(59,130,246,.1));
+  background: linear-gradient(180deg, rgba(163,230,53,.22), rgba(132,204,22,.12));
 }
 
 /* =======================
