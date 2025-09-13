@@ -7,9 +7,9 @@
   "background": { "service_worker": "background.js" },
   "action": { "default_title": "WebMinutes", "default_popup": "popup.html" },
   "icons": {
-    "16": "icon_files/orb-black.png",
-    "48": "icon_files/orb-black.png",
-    "128": "icon_files/orb-black.png"
+    "16": "assets/icons/icon-16.png",
+    "48": "assets/icons/icon-48.png",
+    "128": "assets/icons/icon-128.png"
   },
   "web_accessible_resources": [
     {
@@ -17,7 +17,7 @@
         "popup.html",
         "popup.css",
         "popup.js",
-        "icon_files/*"
+        "assets/icons/*"
       ],
       "matches": ["<all_urls>"]
     }
