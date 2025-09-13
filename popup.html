@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WebMinutes</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <!-- Contenedor visual del popup (permite esquinas redondeadas) -->
+  <div class="popup" role="dialog" aria-labelledby="app-title" aria-describedby="app-date">
+    <header class="header">
+      <h1 id="app-title">WebMinutes</h1>
+      <p id="date" class="muted" aria-live="polite"></p>
+    </header>
+
+    <main>
+      <!-- Tiempo total del día -->
+      <section class="totals" aria-labelledby="total-title">
+        <div class="card">
+          <div id="total-title" class="label">Tiempo total hoy</div>
+          <div class="value" id="totalToday" aria-live="polite">—</div>
+        </div>
+      </section>
+
+      <!-- Tiempo por app -->
+      <section class="section" aria-labelledby="apps-title">
+        <h2 id="apps-title">Tiempo por app (hoy)</h2>
+        <ol id="appsList" class="list" aria-live="polite" aria-busy="false"></ol>
+      </section>
+
+      <!-- Top páginas -->
+      <section class="section" aria-labelledby="pages-title">
+        <h2 id="pages-title">Top páginas (hoy)</h2>
+        <div id="chartCard" class="card chart" aria-label="Distribución por webs">
+          <div class="chart-aura">
+            <div class="blob blob--1"></div>
+            <div class="blob blob--2"></div>
+            <div class="blob blob--3"></div>
+          </div>
+          <div class="chart-wrap">
+            <!-- Chart.js only: canvas chart -->
+            <canvas id="pie" width="260" height="260" role="img" aria-label="Gráfica de distribución"></canvas>
+            <!-- capa para iconos encima del donut -->
+            <div class="chart-icons" id="chartIcons" aria-hidden="true"></div>
+            <div class="chart-center" aria-hidden="true">
+              <div class="center-title">Total</div>
+              <div class="center-value" id="centerTotal">—</div>
+            </div>
+          </div>
+          <div id="pieLegend" class="legend" aria-label="Leyenda" hidden></div>
+          <div id="pieTooltip" class="tooltip" hidden></div>
+        </div>
+        <ol id="topList" class="list" aria-live="polite" aria-busy="false"></ol>
+      </section>
+
+      <!-- Acciones -->
+      <section class="actions" aria-label="Acciones">
+        <button id="btnExport" class="primary" type="button">Exportar CSV</button>
+        <button id="btnReset" type="button">Reset día</button>
+  <button id="btnWindow" type="button" title="Abrir como ventana flotante">Ventana flotante</button>
+  <button id="btnOverlay" type="button" title="Abrir flotante sobre la página">Flotante en página</button>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <small class="muted">Privado: tus datos se guardan solo en este dispositivo.</small>
+    </footer>
+  </div>
+  <!-- Local Chart.js (UMD) -->
+  <script src="./vendor/chart.umd.min.js"></script>
+  <script src="./popup.js"></script>
+</body>
+</html>

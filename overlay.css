@@ -1,0 +1,52 @@
+:root {
+  --wm-shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+
+#wm-overlay-root {
+  position: fixed !important;
+  top: 24px !important;
+  left: 24px !important;
+  width: 380px !important;
+  height: 520px !important;
+  z-index: 2147483646 !important; /* por encima de todo */
+  box-shadow: var(--wm-shadow) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+#wm-overlay-root .wm-titlebar {
+  height: 30px !important;
+  background: #111827 !important;
+  color: #e5e7eb !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 8px !important;
+  cursor: move !important;
+  user-select: none !important;
+}
+
+#wm-overlay-root .wm-titlebar .wm-actions button {
+  background: transparent !important;
+  color: #e5e7eb !important;
+  border: 0 !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+}
+
+#wm-overlay-root iframe {
+  width: 100% !important;
+  height: calc(100% - 30px) !important;
+  border: 0 !important;
+  display: block !important;
+}
+
+#wm-overlay-root .wm-resizer {
+  position: absolute !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 14px !important;
+  height: 14px !important;
+  cursor: nwse-resize !important;
+  background: linear-gradient(135deg, transparent 0 50%, #6b7280 50% 100%) !important;
+}
