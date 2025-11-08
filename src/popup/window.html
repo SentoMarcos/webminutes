@@ -12,14 +12,20 @@
   <div class="hero">
     <div class="hero__logo">WM</div>
     <h1 class="hero__title">WebMinutes</h1>
-    <p class="hero__subtitle">Dashboard — coming soon</p>
     <div class="hero__card">
       <div class="hero__label">Today</div>
       <div class="hero__value" id="heroTotal">—</div>
     </div>
     <div class="hero__date" id="heroDate">—</div>
-    <p class="hero__note">We’re building a richer view with per‑site and per‑video breakdowns. Stay tuned!</p>
+
+    </div>
+    <div class="page">
+      <!-- Vista temática sin gráfica -->
+      <div class="themes" id="themesList" aria-label="Distribución por temáticas"></div>
+    </div>
   </div>
+  <!-- Local Chart.js (UMD) -->
+  <script src="../../vendor/chart.umd.min.js"></script>
   <script src="window.js"></script>
 </body>
 </html>

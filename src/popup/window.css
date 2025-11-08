@@ -17,6 +17,18 @@ body {
 .hero__value{font-size:1.8rem;font-weight:800}
 .hero__date{margin-top:4px;color:#cbd5e1}
 .hero__note{max-width:520px;color:#9aa6b2}
+.themes{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;width:100%}
+.page{width:100%;max-width:1080px;margin:0 auto;padding:0 32px 48px 32px;box-sizing:border-box}
+.page .themes{margin-top:12px}
+.theme-card{background:#23272f;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;box-shadow:0 4px 18px rgba(0,0,0,.18);position:relative}
+.theme-card__header{display:flex;align-items:center;gap:10px}
+.theme-card__badge{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.95rem;color:#0f172a;background:linear-gradient(135deg,#a3e635,#84cc16);box-shadow:0 4px 12px rgba(163,230,53,.35)}
+.theme-card__title{font-size:1.05rem;font-weight:700;color:#f1f5f9;margin:0}
+.theme-card__time{font-size:1.15rem;font-weight:600;color:#e2e8f0}
+.theme-card__pct{font-size:0.85rem;font-weight:600;color:#a3e635}
+.theme-card__list{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.theme-card__list li{font-size:0.78rem;color:#cbd5e1;display:flex;justify-content:space-between;gap:8px}
+.theme-card__list li span{max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sidebar {
   width: 68px;
   background: #1a1d22;
@@ -139,6 +151,9 @@ body {
   margin-bottom: 12px;
   position: relative;
 }
+.chart-wrap{position:relative;display:inline-block}
+.chart-icons{position:absolute;left:0;top:0;pointer-events:none}
+.chart-icons__img{position:absolute;transform:translate(-50%,-50%);border:3px solid #22c55e;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3)}
 .chart-center {
   position: absolute;
   left: 50%;
@@ -207,6 +222,7 @@ body {
 }
 
 @media (max-width: 900px) {
+  .page{padding:0 18px 42px 18px}
   .main {
     padding: 18px 8px 12px 8px;
   }
@@ -224,6 +240,7 @@ body {
 }
 
 @media (max-width: 650px) {
+  .themes{grid-template-columns:1fr}
   body {
     flex-direction: column;
   }
