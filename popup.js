@@ -27,7 +27,42 @@
     "web.telegram.org":"Telegram","t.me":"Telegram"
   };
   function appNameFromHost(host){if(!host)return 'Otros';if(SOCIAL_APPS[host])return SOCIAL_APPS[host];for(const key of Object.keys(SOCIAL_APPS)){if(host===key||host.endsWith('.'+key))return SOCIAL_APPS[key]}return host}
-  function iconUrlFor(app,sampleHost){const APP_HOST={"YouTube":"youtube.com","X":"x.com","Instagram":"instagram.com","Facebook":"facebook.com","TikTok":"tiktok.com","Reddit":"reddit.com","LinkedIn":"linkedin.com","WhatsApp":"web.whatsapp.com","Telegram":"web.telegram.org"};const host=APP_HOST[app]||sampleHost||'example.com';return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=32`}
+  // Favicon helpers: prefer the actual host's icon with a resilient fallback chain
+  function faviconCandidatesFor(app, host){
+    const APP_HOST={"YouTube":"youtube.com","X":"x.com","Instagram":"instagram.com","Facebook":"facebook.com","TikTok":"tiktok.com","Reddit":"reddit.com","LinkedIn":"linkedin.com","WhatsApp":"web.whatsapp.com","Telegram":"web.telegram.org"};
+    const h = host && host.trim() ? host.trim() : (APP_HOST[app]||'');
+    if(!h) return [];
+    const enc = encodeURIComponent;
+    // Known overrides for tricky hosts (auth walls, intranets, etc.)
+    const OVERRIDES = {
+      'intranet.upv.es': 'https://www.upv.es/favicon.ico',
+      'upv.es': 'https://www.upv.es/favicon.ico'
+    };
+    if(OVERRIDES[h]) return [OVERRIDES[h]];
+    // derive parent domain (strip first label) for intranet subdomains like intranet.upv.es
+    let parent = '';
+    const parts = h.split('.');
+    if(parts.length > 2) parent = parts.slice(1).join('.');
+    const parentCands = parent ? [
+      `https://www.google.com/s2/favicons?sz=64&domain_url=https://${enc(parent)}/`,
+      `https://www.google.com/s2/favicons?sz=64&domain=${enc(parent)}`,
+      `https://${parent}/favicon.ico`
+    ] : [];
+    // Use domain_url to better support subdomains, then common icon file names
+    const cands = [
+      `https://www.google.com/s2/favicons?sz=64&domain_url=https://${enc(h)}/`,
+      `https://www.google.com/s2/favicons?sz=64&domain=${enc(h)}`,
+      `https://icons.duckduckgo.com/ip3/${h}.ico`,
+      `https://${h}/favicon.ico`,
+      `https://${h}/favicon.png`,
+      `https://${h}/apple-touch-icon.png`,
+      `https://${h}/apple-touch-icon-precomposed.png`,
+      ...parentCands
+    ];
+    // As a last resort, try http (some intranets may not serve https icon)
+    cands.push(`http://${h}/favicon.ico`);
+    return cands;
+  }
 
   function makeCsvRow(cols){return cols.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')}
   async function exportCsv(){const all=await chrome.storage.local.get(null);let csv='date,url,seconds\n';Object.keys(all).sort().forEach(date=>{const dayMap=all[date];if(!dayMap||typeof dayMap!=='object')return;Object.entries(dayMap).forEach(([url,ms])=>{csv+=makeCsvRow([date,url,Math.floor(ms/1000)])+'\n'})});const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`webminutes_${Date.now()}.csv`;document.body.appendChild(a);a.click();URL.revokeObjectURL(url);a.remove()}
@@ -123,8 +158,8 @@
         plugins: [baseRingPlugin, {
           id: 'wmLayout',
           afterDatasetsDraw(c){
-            // solo recalcula centro; los iconos se crean al inicio y en resize
-            try { updateCenterOverlay(); } catch {}
+            // Recalcula centro e iconos en cada frame de dibujo para seguir el arco actualizado
+            try { updateCenterOverlay(); updateIcons(); } catch {}
           }
         }]
       });
@@ -178,12 +213,41 @@
           let x = arc.x + cx * rMid;
           let y = arc.y + sy * rMid;
           const item = parts[i];
-          const fav = item && item.app !== 'Otros' ? iconUrlFor(item.app, item.host) : '';
+          // Generar candidatos de favicon para el host representativo de este segmento
+          const candidates = (item && item.app !== 'Otros') ? faviconCandidatesFor(item.app, item.host) : [];
           const img = document.createElement('img');
           img.className = 'chart-icons__img';
           img.alt = item ? item.label : '';
-          if(!fav) return; // no icon for 'Otros'
-          img.src = fav;
+          if(!candidates.length) return; // no icon for 'Otros' o sin host
+          img.src = candidates[0];
+          // Fallback entre candidatos si falla la carga
+          img.onerror = function(){
+            try{
+              const cur = Number(img.dataset.favIndex||'0');
+              const next = cur + 1;
+              if(next < candidates.length){
+                img.dataset.favIndex = String(next);
+                img.src = candidates[next];
+              }else{
+                // último recurso: generar una inicial dentro de un círculo
+                const label = (item?.label||'').trim();
+                const letter = label ? label[0].toUpperCase() : '?';
+                const size = parseInt(img.style.width)||24;
+                const canvas = document.createElement('canvas');
+                canvas.width = size; canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                if(ctx){
+                  ctx.fillStyle = colors[i%colors.length];
+                  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2); ctx.fill();
+                  ctx.font = `bold ${Math.round(size*0.55)}px Segoe UI, Arial`; ctx.textAlign='center'; ctx.textBaseline='middle';
+                  ctx.fillStyle = '#fff'; ctx.fillText(letter, size/2, size/2+1);
+                  try{ img.src = canvas.toDataURL('image/png'); img.onerror = null; }catch{ img.style.display='none'; }
+                }else{
+                  img.style.display = 'none';
+                }
+              }
+            }catch{}
+          };
           // borde del color del segmento
           img.style.borderColor = colors[i%colors.length];
           img.referrerPolicy = 'no-referrer';
@@ -556,8 +620,9 @@
         // Compose dataset values with live ms en el índice elegido
         const vals = partsRef.map((it,j)=> Math.max(0, Math.round((it.ms + (j===idx?ms:0))/1000)) );
         const ds = chartRef.data.datasets[0];
-        ds.data = vals;
-        chartRef.update('none');
+  ds.data = vals;
+  chartRef.update('none');
+  try{ updateIcons(); }catch{}
         // update center total visually
         const centerValEl = document.getElementById('centerTotal');
         const totalMs = partsRef.reduce((a,it)=>a+it.ms,0) + ms;
