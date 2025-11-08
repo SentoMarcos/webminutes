@@ -142,5 +142,29 @@
 			current = { tabId: null, windowId: null, url: null, start: 0 };
 		}
 	});
+
+		// Live updates when popup connects
+		chrome.runtime.onConnect.addListener(async (port)=>{
+			if(!port || port.name !== 'popup') return;
+			let tId = null;
+			const tick = async ()=>{
+				try{
+					const tk = todayKey();
+					// While the popup is open, Chrome may report no focused window; still provide live elapsed time
+					// for display purposes. Keep honoring user activity and only for trackable URLs.
+					const liveMs = (!current.url || !isUserActive || !isTrackableUrl(current.url))
+						? 0
+						: Math.max(0, now() - (current.start || now()));
+					port.postMessage({ type: 'wm_live', dayKey: tk, url: current.url || '', liveMs });
+				}catch(e){ /* ignore */ }
+			};
+			// ensure we prime state so popup shows immediate numbers
+			try{ await initActiveContext(); }catch{}
+			// send an immediate tick on connect
+			tick();
+			// then continue with 1s updates
+			tId = setInterval(tick, 1000);
+			port.onDisconnect.addListener(()=>{ if(tId){ clearInterval(tId); tId=null; } });
+		});
 })();
 
