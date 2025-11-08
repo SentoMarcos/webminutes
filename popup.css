@@ -174,15 +174,19 @@ section > h2::after {
 /* Botón icono (cámara) en esquina */
 .icon-btn.capture{
   position:absolute; right:10px; top:10px;
-  width:28px; height:28px; display:grid; place-items:center;
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center;
   background: rgba(35,39,47,.7);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   color: var(--text);
   cursor: pointer;
   transition: transform .08s ease, background .2s ease, border-color .2s ease;
   z-index: 2;
+  box-sizing:border-box;
 }
+.icon-btn.capture svg{ display:block; width:52px; height:52px; margin:0; shape-rendering: geometricPrecision; transform: translateY(-0.5px); }
+.icon-btn.capture svg *{ vector-effect: non-scaling-stroke; }
+.icon-btn.capture svg *{ vector-effect: non-scaling-stroke; }
 .icon-btn.capture:hover{ background:#2b313a; border-color:var(--border-strong); transform: translateY(-1px); }
 .icon-btn.capture:active{ transform: translateY(1px); }
 
@@ -203,7 +207,6 @@ section > h2::after {
   color: var(--muted);
   font-size: 12px;
 }
-
 .totals .value {
   font-size: clamp(22px, 6vmin, 28px);
   font-weight: 800;

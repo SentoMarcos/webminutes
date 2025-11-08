@@ -22,6 +22,32 @@
     <div class="page">
       <!-- Vista temática sin gráfica -->
       <div class="themes" id="themesList" aria-label="Distribución por temáticas"></div>
+        <div class="daily-stats" id="dailyStats" aria-label="Top del día">
+          <div class="daily-stats__group" id="topUnifiedGroup">
+            <h2 class="daily-stats__title">Top del día</h2>
+            <ul class="daily-list" id="topUnifiedList"></ul>
+            <button type="button" class="expand-btn" id="btnExpandTop" aria-expanded="false">Ver más</button>
+          </div>
+        </div>
+        <!-- Enlaces sociales -->
+        <footer class="socials" aria-label="Redes sociales">
+          <a class="socials__btn" href="https://github.com/SentoMarcos" target="_blank" rel="noopener" title="Abrir GitHub" aria-label="Abrir GitHub">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+              <path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.5-1.5-1.9-1.5-1.9-1.3-.9.1-.9.1-.9 1.4.1 2.1 1.5 2.1 1.5 1.2 2.1 3.2 1.5 4 .9.1-.9.5-1.5.9-1.8-2.6-.3-5.4-1.3-5.4-5.8 0-1.3.5-2.3 1.2-3.2 0-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C18 4 19 4.3 19 4.3c.6 1.6.2 2.9.1 3.2.8.9 1.2 2 1.2 3.2 0 4.6-2.8 5.5-5.4 5.8.5.4 1 .1 1.5 1.6v2.4c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/>
+            </svg>
+          </a>
+          <a class="socials__btn" href="https://www.linkedin.com/in/sento-marcos-ibarra-56bba632b/" target="_blank" rel="noopener" title="Abrir LinkedIn" aria-label="Abrir LinkedIn">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+              <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8.5h4V24h-4V8.5zM8.5 8.5h3.8v2.1h.1c.5-1 1.9-2.1 3.9-2.1 4.2 0 5 2.8 5 6.3V24h-4v-7.2c0-1.7 0-3.9-2.4-3.9-2.4 0-2.8 1.9-2.8 3.8V24h-4V8.5z"/>
+            </svg>
+          </a>
+          <a class="socials__btn" href="https://www.instagram.com/sentomarcos_dev?igsh=NnU3MjZpYXM2Nzl5" target="_blank" rel="noopener" title="Abrir Instagram" aria-label="Abrir Instagram">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+              <path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.9.3 2.4.5.6.2 1 .5 1.5 1 .4.4.7.9 1 1.5.2.5.4 1.2.5 2.4.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.3 1.9-.5 2.4-.2.6-.5 1-1 1.5-.4.4-.9.7-1.5 1-.5.2-1.2.4-2.4.5-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.9-.3-2.4-.5-.6-.2-1-.5-1.5-1-.4-.4-.7-.9-1-1.5-.2-.5-.4-1.2-.5-2.4C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.3-1.9.5-2.4.2-.6.5-1 1-1.5.4-.4.9-.7 1.5-1 .5-.2 1.2-.4 2.4-.5C8.4 2.2 8.8 2.2 12 2.2m0-2.2C8.7 0 8.3 0 7.1.1 5.9.2 5 .4 4.2.7c-.9.3-1.6.7-2.3 1.4C1.2 2.8.8 3.5.5 4.4.2 5.2 0 6.1-.1 7.3 0 8.5 0 8.9 0 12s0 3.5.1 4.7c.1 1.2.3 2.1.6 2.9.3.9.7 1.6 1.4 2.3.7.7 1.4 1.1 2.3 1.4.8.3 1.7.5 2.9.6 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.2-.1 2.1-.3 2.9-.6.9-.3 1.6-.7 2.3-1.4.7-.7 1.1-1.4 1.4-2.3.3-.8.5-1.7.6-2.9.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.2-.3-2.1-.6-2.9-.3-.9-.7-1.6-1.4-2.3C21.5 1.4 20.8 1 19.9.7 19.1.4 18.2.2 17 .1 15.8 0 15.3 0 12 0z"/>
+              <path d="M12 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM18.4 4.6a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8z"/>
+            </svg>
+          </a>
+        </footer>
     </div>
   </div>
   <!-- Local Chart.js (UMD) -->
